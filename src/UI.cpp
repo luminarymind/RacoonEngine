@@ -18,14 +18,18 @@ void RacoonEngine::BuildUI()
     ImGui::SetNextWindowSize(ImVec2(CONTROLS_WINDOW_SIZE_X, CONTROLS_WINDOW_SIZE_Y), ImGuiCond_FirstUseEver);
 
     ImGui::Begin("Racoon Engine", &m_UIState.m_bShowUI);
-    ImGui::CollapsingHeader("Timer", ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_Bullet);
-    ImGui::Text("Delta time: %.7f", m_Timer.DeltaTime());
-    //ImGui::Text("Total time: %.3f", m_Timer.TotalTime());
-    ImGui::Spacing();
+    if (ImGui::CollapsingHeader("Timer", ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_Bullet))
+    {
+        ImGui::Text("Delta time: %.7f", m_Timer.DeltaTime());
+        //ImGui::Text("Total time: %.3f", m_Timer.TotalTime());
+        ImGui::Spacing();
+    }
 
-    ImGui::CollapsingHeader("System Info", ImGuiTreeNodeFlags_DefaultOpen);
-    ImGui::Text("GPU: %s", m_systemInfo.mGPUName.c_str());
-    ImGui::Text("CPU: %s", m_systemInfo.mCPUName.c_str());
+    if (ImGui::CollapsingHeader("System Info", ImGuiTreeNodeFlags_DefaultOpen))
+    {
+        ImGui::Text("GPU: %s", m_systemInfo.mGPUName.c_str());
+        ImGui::Text("CPU: %s", m_systemInfo.mCPUName.c_str());
+    }
 
     ImGui::End();
 }

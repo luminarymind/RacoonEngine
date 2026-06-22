@@ -50,7 +50,7 @@ void Renderer::OnCreate(Device* pDevice, SwapChain* pSwapChain)
 }
 
 }
-void Racoon::Renderer::OnRender(SwapChain* pSwapChain)
+void Racoon::Renderer::OnRender(SwapChain* pSwapChain, const Camera& camera)
 {
     m_CommandListRing.OnBeginFrame();
     m_ConstantsBufferRing.OnBeginFrame();
@@ -60,7 +60,7 @@ void Racoon::Renderer::OnRender(SwapChain* pSwapChain)
     CmdList->OMSetRenderTargets(1, pSwapChain->GetCurrentBackBufferRTV(), true, &m_DepthDSV.GetCPU());
 
     PerFrame perFrameData;
-    perFrameData.mvp = GetPerFrameMatrix();
+    perFrameData.mvp = GetPerFrameMatrix(camera);
     m_ConstantBuffer = m_ConstantsBufferRing.AllocConstantBuffer(sizeof(PerFrame), &perFrameData);
     ID3D12DescriptorHeap* descHeap = m_ResourceViewHeaps.GetCBV_SRV_UAVHeap();
     CmdList->SetDescriptorHeaps(1, &descHeap);
@@ -204,23 +204,12 @@ void Racoon::Renderer::CreateGraphicsPipelineState()
     m_pDevice->GetDevice()->CreateGraphicsPipelineState(&descPso, IID_PPV_ARGS(&m_PipelineState));
 }
 
-XMFLOAT4X4 Racoon::Renderer::GetPerFrameMatrix()
+math::Matrix4 Racoon::Renderer::GetPerFrameMatrix(const Camera& Cam)
 {
-    XMVECTOR pos = XMVectorSet(0, 5, 5, 1.f);
-    XMVECTOR target = XMVectorZero();
-    XMVECTOR up = XMVectorSet(0.f, 1.f, 0.f, 0.f);
-    XMMATRIX view = XMMatrixLookAtLH(pos, target, up);
-
-    XMMATRIX persp = XMMatrixPerspectiveFovLH(80, 1.7, 1, 50);
-
-    XMMATRIX trans = XMMatrixTranslationFromVector({ 0,0,0 });
-    XMMATRIX rot = XMMatrixRotationZ(85);
-    XMMATRIX scale = XMMatrixScalingFromVector({ 1, 1, 1 });
-    XMMATRIX transform = trans * rot * scale;
-    XMFLOAT4X4 res;
-    XMStoreFloat4x4(&res, transform);
-
-    return res;
+    math::Matrix4 model(math::Matrix4::identity());
+    auto camViewProj = Cam.GetProjection() * Cam.GetView();
+    auto mvp = camViewProj * model;
+    return math::transpose(mvp);
 }
 
 uint32_t Racoon::Renderer::CheckForMSAAQualitySupport()

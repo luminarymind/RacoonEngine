@@ -8,6 +8,7 @@
 #include "GameTimer.h"
 #include <memory>
 #include "UI.h"
+#include "Misc/Camera.h"
 
 namespace Racoon {
 
@@ -25,12 +26,16 @@ public:
     virtual void OnUpdateDisplay() override;
 
     void OnUpdate();
+    void UpdateCamera(Camera& cam, const ImGuiIO& io);
     void BuildUI();
 
 private:
     std::unique_ptr<Renderer> m_Renderer;
     GameTimer m_Timer;
     bool m_IsPaused{ false };
+
+    Camera m_Camera;
+
     UIState m_UIState;
 };
 

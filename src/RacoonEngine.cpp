@@ -25,6 +25,9 @@ void Racoon::RacoonEngine::OnCreate()
 
     m_Renderer.reset(new Renderer());
     m_Renderer->OnCreate(&m_device, &m_swapChain);
+
+    m_Camera.SetFov(AMD_PI_OVER_4, 1920, 1080, 0.1f, 1000.f);
+    m_Camera.LookAt({ 0, 0, 5, 0 }, { 0, 0, 0, 0 });
 }
 
 void Racoon::RacoonEngine::OnDestroy()
@@ -45,7 +48,7 @@ void Racoon::RacoonEngine::OnRender()
     ImGui::NewFrame();
     BuildUI();
     OnUpdate();
-    m_Renderer->OnRender(&m_swapChain);
+    m_Renderer->OnRender(&m_swapChain, m_Camera);
     EndFrame();
 }
 
@@ -76,6 +79,35 @@ void Racoon::RacoonEngine::OnUpdateDisplay()
 void Racoon::RacoonEngine::OnUpdate()
 {
     m_Timer.Tick();
+
+    ImGuiIO& io = ImGui::GetIO();
+    if (io.WantCaptureMouse)
+    {
+        io.MouseDelta.x = 0;
+        io.MouseDelta.y = 0;
+        io.MouseWheel = 0;
+    }
+    UpdateCamera(m_Camera, io);
+
+}
+
+void Racoon::RacoonEngine::UpdateCamera(Camera& cam, const ImGuiIO& io)
+{
+    float yaw = cam.GetYaw();
+    float pitch = cam.GetPitch();
+    float distance = cam.GetDistance();
+
+    if (io.MouseDown[0])
+    {
+        // read mouse movement
+        yaw -= io.MouseDelta.x / 100.f;
+        pitch += io.MouseDelta.y / 100.f;
+    }
+
+    distance -= io.MouseWheel;
+    distance = std::max<float>(distance, 0.1f);
+
+    cam.UpdateCameraPolar(yaw, pitch, 0, 0, distance);
 }
 
 int WINAPI WinMain(HINSTANCE hInstance,

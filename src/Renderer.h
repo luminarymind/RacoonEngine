@@ -11,6 +11,8 @@
 #include "base/StaticConstantBufferPool.h"
 #include "base/StaticBufferPool.h"
 
+#include "Misc/Camera.h"
+
 using namespace CAULDRON_DX12;
 
 namespace Racoon {
@@ -28,11 +30,11 @@ public:
 
     struct PerFrame
     {
-        XMFLOAT4X4 mvp;
+        math::Matrix4 mvp;
     };
 
     void OnCreate(Device* pDevice, SwapChain* pSwapChain);
-    void OnRender(SwapChain* pSwapChain);
+    void OnRender(SwapChain* pSwapChain, const Camera& camera);
     void OnDestroy();
 
 private:
@@ -41,7 +43,7 @@ private:
     void CreateRootSignature();
     void CreateGraphicsPipelineState();
 
-    XMFLOAT4X4 GetPerFrameMatrix();
+    math::Matrix4 GetPerFrameMatrix(const Camera& Cam);
 
     uint32_t CheckForMSAAQualitySupport();
 
